@@ -1,3 +1,7 @@
+.vscode
+debug
+release
+
 # Prerequisites
 *.d
 
