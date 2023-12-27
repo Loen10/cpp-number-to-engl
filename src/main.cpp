@@ -1,6 +1,7 @@
 #include <iostream>
 #include <optional>
 #include <cstring>
+#include <string>
 #include <stdint.h>
 
 constexpr const char* small_nums[] = {
@@ -52,16 +53,83 @@ constexpr const char* small_nums[] = {
     "hundred"
 };
 
-void convert_group(const char* const group) {
-
+constexpr uint8_t to_digit(const char c) {
+    return c - '0';
 }
 
-void convert_digits(const char* const last_digit, const size_t len,
+void convert_double_digit(const char* const double_digit, std::string& engl) {
+    if (double_digit[0] == '1') {
+        engl += small_nums[10 + to_digit(double_digit[1])];
+        return;
+    }
+
+    engl += prefixes[to_digit(double_digit[0]) - 2];
+
+    if (double_digit[1] != '0') {
+        engl += '-';
+        engl += small_nums[to_digit(double_digit[1])];
+    }
+}
+
+void convert_triple_digit(const char* const triple_digit, std::string& engl) {
+    engl += small_nums[to_digit(triple_digit[0])];
+    engl += " hundred";
+
+    if (triple_digit[1] == '0') {
+        if (triple_digit[2] != '0') {
+            engl += ' ';
+            engl += small_nums[to_digit(triple_digit[2])];
+        }
+    } else {
+        engl += ' ';
+        convert_double_digit(triple_digit + 1, engl);
+    }
+}
+
+void convert_group3(const char* const group, const size_t third_order,
     std::string& engl)
 {
+    if (group[0] == '0') {
+        if (group[1] == '0') {
+            if (group[2] == '0') return;
+            engl += ' ';
+            engl += small_nums[to_digit(group[2])];
+        } else {
+            engl += ' ';
+            convert_double_digit(group + 1, engl);
+        }
+    } else {
+        engl += ' ';
+        convert_triple_digit(group, engl);
+    }
+
+    engl += third_orders[third_order];
+}
+
+void convert_group_no_leading(const char* const group, const uint8_t len,
+    std::string& engl, const size_t third_order)
+{
+    if (len == 1) {
+        engl += small_nums[to_digit(group[0])];
+    } else if (len == 2) {
+        convert_double_digit(group, engl);
+    } else {
+        convert_triple_digit(group, engl);
+    }
+
+    engl += third_orders[third_order];
+}
+
+void convert_digits(const char* const digits, const size_t len,
+    std::string& engl)
+{
+    size_t third_order = len / 3;
+    const uint8_t first_group_len = len - third_order * 3;
+    convert_group_no_leading(digits, first_group_len, engl, third_order);
+
     // 12345
-    for (size_t i = 2; i < len; i += 3) {
-        convert_group(last_digit - i);
+    for (size_t i = first_group_len; i < len; i += 3) {
+        convert_group3(digits + i, --third_order, engl);
     }
 }
 
@@ -82,7 +150,7 @@ void starts_digit(const char* const number, const size_t len,
     std::string& engl)
 {
     const size_t end = get_end_of_digits(number, len);
-    convert_digits(&number[end - 1], end, engl);
+    convert_digits(number, end, engl);
 
     if (end < len && number[end] == '.') {
         
@@ -99,7 +167,7 @@ void starts_negative(const std::string& number) {
 
     if (std::isdigit(number[1])) {
         std::string engl = "negative ";
-        starts_digit(number.data() + 2, number.length() - 2, engl);
+        starts_digit(number.data() + 1, number.length() - 1, engl);
         return;
     }
     
