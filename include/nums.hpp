@@ -24,7 +24,7 @@ constexpr const char* small_nums[] = {
 }, *prefixes[] = {
     "twenty",
     "thirty",
-    "fourty",
+    "forty",
     "fifty",
     "sixty",
     "seventy",
