@@ -16,7 +16,7 @@ void starts_negative(const std::string& number, std::string& engl) {
     
     if (number[1] == '.') {
         engl = "negative ";
-        starts_digit(number.data() + 1, number.length() - 1, engl);
+        starts_decimal(number.data() + 1, number.length() - 1, engl);
         return;
     }
 
@@ -39,7 +39,7 @@ int main() {
         } else if (std::isdigit(number[0])) {
             starts_digit(number.data(), number.length(), engl);
         } else if (number[0] == '.') {
-            starts_decimal(number.data(), number.length(), engl, "");
+            starts_decimal(number.data(), number.length(), engl);
         } else {
             engl = "Invalid number!";
         }

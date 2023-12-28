@@ -2,25 +2,60 @@
 #include "decimal_conversions.hpp"
 #include "nums.hpp"
 
-constexpr uint8_t to_digit(const char c) {
+constexpr int to_digit(const char c) {
     return c - '0';
 }
 
-void starts_digit(const char* number, size_t len, std::string& engl) {
-    auto first_non_zero = get_first_non_zero(number, len);
+constexpr bool is_non_zero_digit(const char c) {
+    return c > '0' && c < 58;
+}
 
-    if (!first_non_zero || !std::isdigit(number[*first_non_zero])) {
+size_t find_end_of_digits(const char* const number, const size_t len) {
+    for (size_t end = 0; end < len; ++end) {
+        if (!std::isdigit(number[end])) return end;
+    }
+
+    return len;
+}
+
+void handle_zeros_followed_by_non_digit(const char *start_non_digit,
+    std::size_t len, std::string &engl)
+{
+    if (start_non_digit[0] == '.') {
+        bool converted_decimals = starts_decimal(start_non_digit, len, engl);
+
+        if (!converted_decimals) {
+            engl = "zero";
+        }
+        
+        return;
+    }
+
+    engl = "Invalid number!";
+}
+
+void starts_digit(const char* number, std::size_t len, std::string &engl) {
+    auto first_non_zero = find_first_non_zero(number, len);
+
+    if (!first_non_zero) {
         engl = "zero";
+        return;
+    }
+
+    if (!isdigit(number[*first_non_zero])) {
+        handle_zeros_followed_by_non_digit(number + *first_non_zero,
+            len - *first_non_zero, engl);
+        
         return;
     }
 
     number += *first_non_zero;
     len -= *first_non_zero;
-    const size_t end = get_end_of_digits(number, len);
+    const size_t end = find_end_of_digits(number, len);
     convert_digits(number, end, engl);
 
     if (end < len && number[end] == '.') {
-        starts_decimal(number + end, len - end, engl, " and ");
+        convert_after_decimal(number + end, len - end, engl, " and ");
     }
 }
 
@@ -73,7 +108,7 @@ void convert_group3(const char* const group, const size_t third_order,
     engl += third_orders[third_order];
 }
 
-void convert_group_no_leading(const char* const group, const uint8_t len,
+void convert_group_no_leading(const char* const group, const int len,
     std::string& engl, const size_t third_order)
 {
     if (len == 1) {
@@ -91,7 +126,7 @@ void convert_digits(const char* const digits, const size_t len,
     std::string& engl)
 {
     size_t third_order = (len - 1) / 3;
-    uint8_t first_group_len = len - third_order * 3;
+    int first_group_len = len - third_order * 3;
     convert_group_no_leading(digits, first_group_len, engl, third_order);
 
     for (size_t i = first_group_len; i < len; i += 3) {
@@ -99,19 +134,7 @@ void convert_digits(const char* const digits, const size_t len,
     }
 }
 
-size_t get_end_of_digits(const char* const number, const size_t len) {
-    for (size_t end = 0; end < len; ++end) {
-        if (!std::isdigit(number[end])) return end;
-    }
-
-    return len;
-}
-
-constexpr bool is_non_zero_digit(const char c) {
-    return c > '0' && c < 58;
-}
-
-size_t get_last_non_zero_digit(const char* const number, const size_t start,
+size_t find_last_non_zero_digit(const char* const number, const size_t start,
     const size_t end)
 {
     size_t last_non_zero_digit = start;
@@ -126,9 +149,11 @@ size_t get_last_non_zero_digit(const char* const number, const size_t start,
     return last_non_zero_digit;
 }
 
-std::optional<size_t> get_first_non_zero(const char* const number,
-    const size_t len)
+std::optional<size_t> find_first_non_zero(const char *const number,
+    const std::size_t len)
 {
+    if (len == 0) return std::nullopt;
+
     for (size_t i = 0; i < len; ++i) {
         if (number[i] != '0') return i;
     }
