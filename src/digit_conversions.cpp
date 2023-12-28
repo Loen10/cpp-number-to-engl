@@ -10,8 +10,8 @@ constexpr bool is_non_zero_digit(const char c) {
     return c > '0' && c < 58;
 }
 
-size_t find_end_of_digits(const char* const number, const size_t len) {
-    for (size_t end = 0; end < len; ++end) {
+std::size_t find_end_of_digits(const char* const number, const std::size_t len) {
+    for (std::size_t end = 0; end < len; ++end) {
         if (!std::isdigit(number[end])) return end;
     }
 
@@ -51,7 +51,7 @@ void starts_digit(const char* number, std::size_t len, std::string &engl) {
 
     number += *first_non_zero;
     len -= *first_non_zero;
-    const size_t end = find_end_of_digits(number, len);
+    const std::size_t end = find_end_of_digits(number, len);
     convert_digits(number, end, engl);
 
     if (end < len && number[end] == '.') {
@@ -88,7 +88,7 @@ void convert_triple_digit(const char* const triple_digit, std::string& engl) {
     }
 }
 
-void convert_group3(const char* const group, const size_t third_order,
+void convert_group3(const char* const group, const std::size_t third_order,
     std::string& engl)
 {
     if (group[0] == '0') {
@@ -109,7 +109,7 @@ void convert_group3(const char* const group, const size_t third_order,
 }
 
 void convert_group_no_leading(const char* const group, const int len,
-    std::string& engl, const size_t third_order)
+    std::string& engl, const std::size_t third_order)
 {
     if (len == 1) {
         engl += small_nums[to_digit(group[0])];
@@ -122,24 +122,24 @@ void convert_group_no_leading(const char* const group, const int len,
     engl += third_orders[third_order];
 }
 
-void convert_digits(const char* const digits, const size_t len,
+void convert_digits(const char* const digits, const std::size_t len,
     std::string& engl)
 {
-    size_t third_order = (len - 1) / 3;
+    std::size_t third_order = (len - 1) / 3;
     int first_group_len = len - third_order * 3;
     convert_group_no_leading(digits, first_group_len, engl, third_order);
 
-    for (size_t i = first_group_len; i < len; i += 3) {
+    for (std::size_t i = first_group_len; i < len; i += 3) {
         convert_group3(digits + i, --third_order, engl);
     }
 }
 
-size_t find_last_non_zero_digit(const char* const number, const size_t start,
-    const size_t end)
+std::size_t find_last_non_zero_digit(const char* const number, const std::size_t start,
+    const std::size_t end)
 {
-    size_t last_non_zero_digit = start;
+    std::size_t last_non_zero_digit = start;
 
-    for (size_t i = start + 1; i < end; ++i) {
+    for (std::size_t i = start + 1; i < end; ++i) {
         if (number[i] != '0') {
             if (!is_non_zero_digit(number[i])) break;
             last_non_zero_digit = i;
@@ -149,12 +149,12 @@ size_t find_last_non_zero_digit(const char* const number, const size_t start,
     return last_non_zero_digit;
 }
 
-std::optional<size_t> find_first_non_zero(const char *const number,
+std::optional<std::size_t> find_first_non_zero(const char *const number,
     const std::size_t len)
 {
     if (len == 0) return std::nullopt;
 
-    for (size_t i = 0; i < len; ++i) {
+    for (std::size_t i = 0; i < len; ++i) {
         if (number[i] != '0') return i;
     }
 

@@ -2,7 +2,7 @@
 #include "nums.hpp"
  #include "digit_conversions.hpp"
 
-void convert_decimal_place(const size_t place, std::string& engl) {
+void convert_decimal_place(const std::size_t place, std::string& engl) {
     engl += fractional_prefixes[place % 3];
     engl += third_orders[place / 3];
     engl += "th";
