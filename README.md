@@ -13,5 +13,5 @@ and even scientific notation, within that range.
 
 No string copies or alterations are made other than appending to the english
 conversion as it parses the number. It relies heavily on pointer arithmetic and
-uses custom parsing methods to account for numbers greater than 2^64 - 1 and for
-decimals.
+uses custom parsing methods to account for numbers outside the range of IEEE 754
+double-precision floating-point numbers.
